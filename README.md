@@ -25,7 +25,6 @@ $ git push heroku master
 Configure your IMAP and STMP settings.
 
 ```
-
 $ heroku config:set IMAP_ADDRESS=imap.gmail.com
 $ heroku config:set SMTP_ADDRESS=smtp.gmail.com
 $ heroku config:set IMAP_USERNAME=example@gmail.com
