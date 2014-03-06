@@ -1,4 +1,3 @@
-require 'cgi'
 require 'mail'
 require 'open-uri'
 require 'uri'
@@ -37,7 +36,7 @@ task :cron do
         if url = field.value[/<(https?:\/\/[^>]+)>/, 1]
           urls << url.to_s
         elsif to = field.value[/<mailto:([^>]+)>/, 1]
-          subject = CGI.parse(URI.parse(to).query)['subject'].to_a.first || "Unsubscribe"
+          subject = Hash[URI.parse(to).query.to_s.split("=").each_slice(2).to_a]['subject'] || "Unsubscribe"
           from = mail.header['X-Delivered-to'] || mail.header['To']
           emails << [to.to_s, from.to_s, subject.to_s]
         end
