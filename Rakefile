@@ -1,5 +1,7 @@
+require 'cgi'
 require 'mail'
 require 'open-uri'
+require 'uri'
 
 Mail.defaults do
   retriever_method :imap, {
@@ -35,9 +37,9 @@ task :cron do
         if url = field.value[/<(https?:\/\/[^>]+)>/, 1]
           urls << url.to_s
         elsif to = field.value[/<mailto:([^>]+)>/, 1]
-          to.gsub!(/\?.*$/, '')
+          subject = CGI.parse(URI.parse(to).query)['subject'].to_a.first || "Unsubscribe"
           from = mail.header['X-Delivered-to'] || mail.header['To']
-          emails << [to.to_s, from.to_s]
+          emails << [to.to_s, from.to_s, subject.to_s]
         end
       end
       imap.uid_store(message_id, '+FLAGS', [:Seen, :Deleted])
@@ -53,12 +55,12 @@ task :cron do
     end
   end
 
-  emails.uniq.each do |to, from|
+  emails.uniq.each do |to, from, subject|
     begin
       Mail.deliver do
         to to
         from from
-        subject 'Unsubscribe'
+        subject subject
       end
     rescue Exception => e
       warn e
