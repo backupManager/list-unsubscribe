@@ -35,10 +35,14 @@ task :cron do
       if field = mail.header['List-Unsubscribe']
         if url = field.value[/<(https?:\/\/[^>]+)>/, 1]
           urls << url.to_s
-        elsif to = field.value[/<mailto:([^>]+)>/, 1]
-          subject = Hash[URI.parse(to).query.to_s.split("=").each_slice(2).to_a]['subject'] || "Unsubscribe"
+        elsif uri = field.value[/<(mailto:[^>]+)>/, 1]
+          uri = URI.parse(uri)
+          subject_header = uri.headers.assoc('subject')
+          subject = subject_header ? subject_header[1] : "Unsubscribe"
           from = mail.header['X-Delivered-to'] || mail.header['To']
-          emails << [to.to_s, from.to_s, subject.to_s]
+          body_header = uri.headers.assoc('body')
+          body = body_header ? body_header[1] : nil
+          emails << [uri.to, from.to_s, subject, body]
         end
       end
       imap.uid_store(message_id, '+FLAGS', [:Seen, :Deleted])
@@ -54,12 +58,13 @@ task :cron do
     end
   end
 
-  emails.uniq.each do |to, from, subject|
+  emails.uniq.each do |to, from, subject, body|
     begin
       Mail.deliver do
         to to
         from from
         subject subject
+        body body
       end
     rescue Exception => e
       warn e
