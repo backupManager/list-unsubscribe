@@ -35,8 +35,8 @@ task :cron do
       if field = mail.header['List-Unsubscribe']
         if url = field.value[/<(https?:\/\/[^>]+)>/, 1]
           urls << url.to_s
-        elsif uri = field.value[/<mailto:([^>]+)>/, 1]
-          uri = URI.parse("mailto:#{uri}")
+        elsif uri = field.value[/<(mailto:[^>]+)>/, 1]
+          uri = URI.parse(uri)
           subject_header = uri.headers.assoc('subject')
           subject = subject_header ? subject_header[1] : "Unsubscribe"
           from = mail.header['X-Delivered-to'] || mail.header['To']
