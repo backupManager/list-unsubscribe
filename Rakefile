@@ -37,7 +37,7 @@ task :cron do
           urls << url.to_s
         elsif uri = field.value[/<mailto:([^>]+)>/, 1]
           uri = URI.parse("mailto:#{uri}")
-          subject_header = uri.headers.assoc('subject')[1]
+          subject_header = uri.headers.assoc('subject')
           subject = subject_header ? subject_header[1] : "Unsubscribe"
           from = mail.header['X-Delivered-to'] || mail.header['To']
           emails << [uri.to, from.to_s, subject]
