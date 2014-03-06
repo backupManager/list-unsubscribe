@@ -22,7 +22,7 @@ $ heroku create
 $ git push heroku master
 ```
 
-Configure your IMAP and STMP settings.
+Configure your IMAP and STMP settings. For GMail, use an [application-specific password](https://support.google.com/mail/answer/1173270?hl=en).
 
 ```
 $ heroku config:set IMAP_ADDRESS=imap.gmail.com
