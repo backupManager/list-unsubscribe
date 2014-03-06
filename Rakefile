@@ -35,6 +35,7 @@ task :cron do
         if url = field.value[/<(https?:\/\/[^>]+)>/, 1]
           urls << url.to_s
         elsif to = field.value[/<mailto:([^>]+)>/, 1]
+          to.gsub!(/\?.*$/, '')
           from = mail.header['X-Delivered-to'] || mail.header['To']
           emails << [to.to_s, from.to_s]
         end
