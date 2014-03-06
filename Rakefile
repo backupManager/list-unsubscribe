@@ -40,7 +40,9 @@ task :cron do
           subject_header = uri.headers.assoc('subject')
           subject = subject_header ? subject_header[1] : "Unsubscribe"
           from = mail.header['X-Delivered-to'] || mail.header['To']
-          emails << [uri.to, from.to_s, subject]
+          body_header = uri.headers.assoc('body')
+          body = body_header ? body_header[1] : nil
+          emails << [uri.to, from.to_s, subject, body]
         end
       end
       imap.uid_store(message_id, '+FLAGS', [:Seen, :Deleted])
@@ -56,12 +58,13 @@ task :cron do
     end
   end
 
-  emails.uniq.each do |to, from, subject|
+  emails.uniq.each do |to, from, subject, body|
     begin
       Mail.deliver do
         to to
         from from
         subject subject
+        body body
       end
     rescue Exception => e
       warn e
